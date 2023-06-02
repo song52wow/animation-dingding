@@ -7,66 +7,132 @@ gsap.registerPlugin(ScrollTrigger);
 
 const scrollRef = ref();
 const companyRef = ref();
+const bannerRef = ref();
 const mainRef = ref();
+const companyAnimation = ref({
+  scale: 0,
+  yPercent: 0,
+  opacity: 0
+});
+const boxAnimation = ref({
+  z: -200,
+});
+
+const scrollTl = gsap
+  .timeline()
+  .addLabel("scroll")
+  .to(
+    companyAnimation.value,
+    {
+      scale: 1.5,
+    },
+    "scroll"
+  )
+  .to(
+    boxAnimation.value,
+    {
+      z: 800,
+    },
+    "scroll"
+);
+
+const bannerStartTl = gsap.timeline().to(companyAnimation.value, {
+  opacity: 1
+})
+
+const mainStartTl = gsap.timeline().to(companyAnimation.value, {
+  yPercent: -100
+})
 
 onMounted(() => {
-  gsap
-    .timeline({
-      scrollTrigger: {
-        trigger: scrollRef.value,
-        markers: true,
-        start: "top top",
-        end: "+=120%",
-        scrub: true,
-      },
-    })
-    .from(companyRef.value, {
-      scale: 0.01,
-      opacity: 0.3,
-    })
-    .to(companyRef.value, {
-      scale: 1,
-      opacity: 1,
-    })
-    .to(companyRef.ref, {
-      scale: 1.3,
-      opacity: 0,
-    });
+  // gsap
+  //   .timeline({
+  //     scrollTrigger: {
+  //       trigger: bannerRef.value,
+  //       scrub: true,
+  //       // markers: true,
+  //       start: "top top",
+  //     },
+  //   })
+  //   .fromTo(
+  //     companyRef.value,
+  //     {
+  //       opacity: 0,
+  //     },
+  //     {
+  //       opacity: 1,
+  //     }
+  //   );
 
-  // ScrollTrigger.create({
-  //   trigger: mainRef.value,
-  //   pin: true,
-  // });
+  ScrollTrigger.create({
+    trigger: bannerRef.value,
+    scrub: true,
+    start: 'top top',
+    animation: bannerStartTl
+  })
+
+  ScrollTrigger.create({
+    trigger: scrollRef.value,
+    scrub: true,
+    markers: true,
+    start: "top top",
+    end: "bottom top",
+    animation: scrollTl,
+  });
+
+  ScrollTrigger.create({
+    trigger: mainRef.value,
+    pin: true,
+    scrub: true,
+    start: 'top top',
+    animation: mainStartTl
+  });
 });
 </script>
 
 <template>
   <div ref="scrollRef" class="scroll">
-    <section class="banner"></section>
+    <section ref="bannerRef" class="banner"></section>
     <section ref="mainRef" class="main">
-      <div ref="companyRef" class="company">
-        <div class="logo">
-          <img
-            src="https://gw.alicdn.com/imgextra/i2/O1CN01kEuOaQ1OQe6INmAUY_!!6000000001700-55-tps-180-180.svg"
-          />
+      <div class="main-animation">
+        <div
+          ref="companyRef"
+          class="company"
+          :style="{
+            transform: `translateY(${companyAnimation.yPercent}%) scale(${companyAnimation.scale})`,
+            opacity: companyAnimation.opacity
+          }"
+        >
+          <div class="logo">
+            <img
+              src="https://gw.alicdn.com/imgextra/i2/O1CN01kEuOaQ1OQe6INmAUY_!!6000000001700-55-tps-180-180.svg"
+            />
+          </div>
+          <div class="name">
+            <img
+              src="https://gw.alicdn.com/imgextra/i2/O1CN01ymd4z41U5vtsYSFZF_!!6000000002467-55-tps-397-52.svg"
+            />
+          </div>
         </div>
-        <div class="name">
-          <img
-            src="https://gw.alicdn.com/imgextra/i2/O1CN01ymd4z41U5vtsYSFZF_!!6000000002467-55-tps-397-52.svg"
-          />
+        <div class="base-bg">
+          <div
+            v-for="i in 21"
+            :key="i"
+            :style="{
+              transform: `translateZ(${boxAnimation.z}px)`,
+            }"
+          ></div>
         </div>
       </div>
-      <div class="base-bg">
-        <div v-for="i in 21" :key="i"></div>
-      </div>
+      <div class="main-other"></div>
     </section>
   </div>
   <section class="footer"></section>
 </template>
 
 <style lang="scss" scoped>
-@use 'sass:list';
-@use 'sass:map';
+@use "sass:list";
+@use "sass:map";
 
 $baseStyle: (
   1: (
@@ -177,7 +243,11 @@ $baseStyle: (
     left: calc(50% - 1.54em),
     top: calc(50% - 4.73em),
     bg: (
-      linear-gradient(-27deg, rgba(143, 53, 255, 0.8) 11%, rgba(143, 53, 255, 0)),
+      linear-gradient(
+        -27deg,
+        rgba(143, 53, 255, 0.8) 11%,
+        rgba(143, 53, 255, 0)
+      ),
       radial-gradient(
         circle at 62% -28%,
         rgba(0, 45, 156, 0.75) 0,
@@ -347,39 +417,47 @@ $baseStyle: (
 }
 
 .main {
-  height: 200vh;
   background-color: #040506;
-  position: relative;
-  font-size: 100px;
+  overflow: hidden;
 
-  .company {
-    text-align: center;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
+  .main-animation {
+    font-size: 100px;
+    height: 200vh;
+    position: relative;
 
-    .name {
-      margin-top: 100px;
+    .company {
+      text-align: center;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
     }
-  }
 
-  .base-bg {
-    width: 100%;
-    height: 100vh;
-    position: absolute;
-
-    > div {
+    .base-bg {
+      width: 100%;
+      height: 100vh;
       position: absolute;
+      top: 0;
+      left: 0;
+      transform-style: preserve-3d;
+      perspective: 800px;
 
-      @each $key, $value in $baseStyle {
-        &:nth-child(#{$key}) {
-          @include baseCss($key);
+      > div {
+        position: absolute;
+
+        @each $key, $value in $baseStyle {
+          &:nth-child(#{$key}) {
+            @include baseCss($key);
+          }
         }
       }
     }
+  }
+
+  .main-other {
+    height: 400px;
   }
 }
 </style>
