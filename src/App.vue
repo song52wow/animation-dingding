@@ -10,9 +10,13 @@ const companyRef = ref();
 const bannerRef = ref();
 const mainRef = ref();
 const companyAnimation = ref({
+  logoScale: 0,
+  titleScale: 0,
   scale: 0,
   yPercent: 0,
-  opacity: 0
+  opacity: 0,
+  logoOpacity: 1,
+  titleOpacity: 1
 });
 const boxAnimation = ref({
   z: -200,
@@ -24,7 +28,9 @@ const scrollTl = gsap
   .to(
     companyAnimation.value,
     {
-      scale: 1.5,
+      titleScale: 2,
+      logoScale: 1.5,
+      scale: 2
     },
     "scroll"
   )
@@ -40,30 +46,17 @@ const bannerStartTl = gsap.timeline().to(companyAnimation.value, {
   opacity: 1
 })
 
-const mainStartTl = gsap.timeline().to(companyAnimation.value, {
+const mainStartTl = gsap.timeline().addLabel('main').to(companyAnimation.value, {
   yPercent: -100
-})
+}, 'main').to(companyAnimation.value, {
+  logoOpacity: 0,
+  duration: 0.1
+}, "main+=15%").to(companyAnimation.value, {
+  titleOpacity: 0,
+  duration: 0.1
+}, 'main+=80%')
 
 onMounted(() => {
-  // gsap
-  //   .timeline({
-  //     scrollTrigger: {
-  //       trigger: bannerRef.value,
-  //       scrub: true,
-  //       // markers: true,
-  //       start: "top top",
-  //     },
-  //   })
-  //   .fromTo(
-  //     companyRef.value,
-  //     {
-  //       opacity: 0,
-  //     },
-  //     {
-  //       opacity: 1,
-  //     }
-  //   );
-
   ScrollTrigger.create({
     trigger: bannerRef.value,
     scrub: true,
@@ -74,7 +67,6 @@ onMounted(() => {
   ScrollTrigger.create({
     trigger: scrollRef.value,
     scrub: true,
-    markers: true,
     start: "top top",
     end: "bottom top",
     animation: scrollTl,
@@ -103,12 +95,16 @@ onMounted(() => {
             opacity: companyAnimation.opacity
           }"
         >
-          <div class="logo">
+          <div class="logo" :style="{
+            opacity: `${companyAnimation.logoOpacity}`
+          }">
             <img
               src="https://gw.alicdn.com/imgextra/i2/O1CN01kEuOaQ1OQe6INmAUY_!!6000000001700-55-tps-180-180.svg"
             />
           </div>
-          <div class="name">
+          <div class="name" :style="{
+            opacity: `${companyAnimation.titleOpacity}`
+          }">
             <img
               src="https://gw.alicdn.com/imgextra/i2/O1CN01ymd4z41U5vtsYSFZF_!!6000000002467-55-tps-397-52.svg"
             />
@@ -433,6 +429,16 @@ $baseStyle: (
       align-items: center;
       justify-content: center;
       flex-direction: column;
+
+      .logo {
+        width: 180px;
+        height: 180px;
+      }
+      
+      .name {
+        width: 397px;
+        height: 52px;
+      }
     }
 
     .base-bg {
