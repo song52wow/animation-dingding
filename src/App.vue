@@ -16,7 +16,7 @@ const companyAnimation = ref({
   yPercent: 0,
   opacity: 0,
   logoOpacity: 1,
-  titleOpacity: 1
+  titleOpacity: 1,
 });
 const boxAnimation = ref({
   z: -200,
@@ -25,44 +25,75 @@ const boxAnimation = ref({
 const scrollTl = gsap
   .timeline()
   .addLabel("scroll")
-  .to(
-    companyAnimation.value,
-    {
-      titleScale: 2,
-      logoScale: 1.5,
-      scale: 2
-    },
-    "scroll"
-  )
+  // .to(
+  //   companyAnimation.value,
+  //   {
+  //     titleScale: 2,
+  //     logoScale: 1.5,
+  //     scale: 2
+  //   },
+  //   "scroll"
+  // )
   .to(
     boxAnimation.value,
     {
       z: 800,
     },
     "scroll"
-);
+  );
 
-const bannerStartTl = gsap.timeline().to(companyAnimation.value, {
-  opacity: 1
-})
+const bannerStartTl = gsap.timeline().fromTo(companyAnimation.value, {
+  opacity: 0,
+  scale: 0,
+}, {
+  opacity: 1,
+  scale: 1,
+});
 
-const mainStartTl = gsap.timeline().addLabel('main').to(companyAnimation.value, {
-  yPercent: -100
-}, 'main').to(companyAnimation.value, {
-  logoOpacity: 0,
-  duration: 0.1
-}, "main+=15%").to(companyAnimation.value, {
-  titleOpacity: 0,
-  duration: 0.1
-}, 'main+=80%')
+const mainStartTl = gsap
+  .timeline()
+  .addLabel("main")
+  .fromTo(
+    companyAnimation.value,
+    {
+      scale: 1,
+    },
+    {
+      scale: 2,
+    },
+    "main"
+  )
+  .to(
+    companyAnimation.value,
+    {
+      yPercent: -100,
+    },
+    "main"
+  )
+  .to(
+    companyAnimation.value,
+    {
+      logoOpacity: 0,
+      duration: 0.1,
+    },
+    "main+=30%"
+  )
+  .to(
+    companyAnimation.value,
+    {
+      titleOpacity: 0,
+      duration: 0.1,
+    },
+    "main+=100%"
+  );
 
 onMounted(() => {
   ScrollTrigger.create({
     trigger: bannerRef.value,
     scrub: true,
-    start: 'top top',
-    animation: bannerStartTl
-  })
+    start: "top top",
+    animation: bannerStartTl,
+  });
 
   ScrollTrigger.create({
     trigger: scrollRef.value,
@@ -76,8 +107,9 @@ onMounted(() => {
     trigger: mainRef.value,
     pin: true,
     scrub: true,
-    start: 'top top',
-    animation: mainStartTl
+    markers: true,
+    start: "top top",
+    animation: mainStartTl,
   });
 });
 </script>
@@ -92,19 +124,25 @@ onMounted(() => {
           class="company"
           :style="{
             transform: `translateY(${companyAnimation.yPercent}%) scale(${companyAnimation.scale})`,
-            opacity: companyAnimation.opacity
+            opacity: companyAnimation.opacity,
           }"
         >
-          <div class="logo" :style="{
-            opacity: `${companyAnimation.logoOpacity}`
-          }">
+          <div
+            class="logo"
+            :style="{
+              opacity: `${companyAnimation.logoOpacity}`,
+            }"
+          >
             <img
               src="https://gw.alicdn.com/imgextra/i2/O1CN01kEuOaQ1OQe6INmAUY_!!6000000001700-55-tps-180-180.svg"
             />
           </div>
-          <div class="name" :style="{
-            opacity: `${companyAnimation.titleOpacity}`
-          }">
+          <div
+            class="name"
+            :style="{
+              opacity: `${companyAnimation.titleOpacity}`,
+            }"
+          >
             <img
               src="https://gw.alicdn.com/imgextra/i2/O1CN01ymd4z41U5vtsYSFZF_!!6000000002467-55-tps-397-52.svg"
             />
@@ -239,11 +277,7 @@ $baseStyle: (
     left: calc(50% - 1.54em),
     top: calc(50% - 4.73em),
     bg: (
-      linear-gradient(
-        -27deg,
-        rgba(143, 53, 255, 0.8) 11%,
-        rgba(143, 53, 255, 0)
-      ),
+      linear-gradient(-27deg, rgba(143, 53, 255, 0.8) 11%, rgba(143, 53, 255, 0)),
       radial-gradient(
         circle at 62% -28%,
         rgba(0, 45, 156, 0.75) 0,
@@ -434,7 +468,7 @@ $baseStyle: (
         width: 180px;
         height: 180px;
       }
-      
+
       .name {
         width: 397px;
         height: 52px;
